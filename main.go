@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-var version = "0.1.0"
+var version = "0.1.1"
 
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	var listDirectory bool
 
 	app := &cli.App{
-		Name: "godown",
+		Name: "GoDown",
 		Usage: "Goroutine Download For Golang",
 		UsageText: "godown [global options] command [command options] argument",
 		Version: version,
