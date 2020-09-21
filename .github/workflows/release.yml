@@ -5,7 +5,7 @@ on:
     - v*
 
 jobs:
-  release:
+  release-check:
     name: Release on GitHub
     runs-on: ubuntu-latest
     steps:
@@ -17,9 +17,41 @@ jobs:
       with:
         args: check
 
-    - name: Create release on GitHub
-      uses: docker://goreleaser/goreleaser:latest
-      with:
-        args: release
+  release-linux-amd64:
+    name: release Linux
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: compile and release
+      uses: ngs/go-release.action@v1.0.1
       env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GOARCH: amd64
+        GOOS: linux
+        EXTRA_FILES: "README.md LICENSE"
+
+  release-darwin-amd64:
+    name: release Mac
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: compile and release
+      uses: ngs/go-release.action@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GOARCH: amd64
+        GOOS: darwin
+        EXTRA_FILES: "README.md LICENSE"
+
+  release-windows-amd64:
+    name: release Windows
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: compile and release
+      uses: ngs/go-release.action@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GOARCH: amd64
+        GOOS: windows
+        EXTRA_FILES: "README.md LICENSE"
