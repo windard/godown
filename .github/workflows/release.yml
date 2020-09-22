@@ -9,6 +9,8 @@ jobs:
   github-action-docker-workflow:
    name: my own github workflow docker
    runs-on: ubuntu-latest
+   env:
+     PROJECT_NAME: $(basename $GITHUB_REPOSITORY)
    steps:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -31,11 +33,26 @@ jobs:
       run: go test -v .
 
     - name: Build Linux
-      run: go build -v -o godown .
+      run: go build -v -o ${PROJECT_NAME}.linux .
       env:
         GOARCH: amd64
         GOOS: linux
 
+    - name: Build Mac
+      run: go build -v -o ${PROJECT_NAME}.darwin .
+      env:
+        GOARCH: amd64
+        GOOS: darwin
+
+    - name: Build Windows
+      run: go build -v -o ${PROJECT_NAME}.windows .
+      env:
+        GOARCH: amd64
+        GOOS: windows
+
+    - name: show build result
+      run: ls -al
+      
     - name: Test Shell script
       run: echo basename $GITHUB_REPOSITORY
     
