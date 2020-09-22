@@ -1,13 +1,12 @@
 name: Release
 on:
-  workflow_dispatch:
   create:
     tags:
     - v*
 
 jobs:
   build-release:
-    name: build linux release
+    name: Build Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,17 +20,6 @@ jobs:
 
       - name: Test
         run: go test -v .
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: true
-          prerelease: false
 
       - name: Build Linux
         run: |
@@ -60,17 +48,12 @@ jobs:
           GOOS: windows
           VERSION: ${GITHUB_REF##*/}
 
-      - name: show build result
-        run: ls -al
-
-      - name: show github ref
-        run: echo ${{ github.ref }}
-
       - name: Upload Release Asset
         id: upload-release-asset
         run: |
           set -x
-          assets=()
+          sha256sum *.tar.gz > sha256sum.txt
+          assets=("-a" "sha256sum.txt")
           for asset in ./*.tar.gz; do
             assets+=("-a" "$asset")
           done
