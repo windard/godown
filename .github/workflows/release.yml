@@ -10,53 +10,42 @@ jobs:
    name: my own github workflow docker
    runs-on: ubuntu-latest
    steps:
-     - uses: actions/checkout@master
-     - name: start flow
-       uses: windard/github-action-docker@main
-       env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         GOARCH: amd64
-         GOOS: linux
-         EXTRA_FILES: "README.md LICENSE"
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.13
+      id: go
 
-  release-linux-amd64:
-    name: release Linux
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: compile and release
-      uses: ngs/go-release.action@v1.0.2
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+
+    - name: Test
+      run: go test -v .
+
+    - name: Build Linux
+      run: go build -v -o godown .
       env:
-        GO111MODULE: on
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GOARCH: amd64
         GOOS: linux
-        EXTRA_FILES: "README.md LICENSE"
 
-  release-darwin-amd64:
-    name: release Mac
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: compile and release
-      uses: ngs/go-release.action@v1.0.2
+    - name: Test Shell script
+      run: echo basename $GITHUB_REPOSITORY
+    
+    - name: Try shell
+      run: echo ${{ github.repository }}
+    
+    - name: How many
+      run: echo ${HOME}
+  
+    - name: Show Project Name
+      run: echo ${PROJECT_NAME}
       env:
-        GO111MODULE: on
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GOARCH: amd64
-        GOOS: darwin
-        EXTRA_FILES: "README.md LICENSE"
-
-  release-windows-amd64:
-    name: release Windows
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: compile and release
-      uses: ngs/go-release.action@v1.0.2
-      env:
-        GO111MODULE: on
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GOARCH: amd64
-        GOOS: windows
-        EXTRA_FILES: "README.md LICENSE"
+        PROJECT_NAME: $(basename $GITHUB_REPOSITORY)
