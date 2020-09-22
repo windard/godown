@@ -6,65 +6,51 @@ on:
     - v*
 
 jobs:
-  github-action-docker-workflow:
-   name: my own github workflow docker
-   runs-on: ubuntu-latest
-   env:
-     PROJECT_NAME: ${{basename $GITHUB_REPOSITORY}}
-   steps:
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.13
-      id: go
+  build-linux-release:
+    name: build linux release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.13
+        id: go
 
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
+      - name: Test
+        run: go test -v .
 
-    - name: Test
-      run: go test -v .
+      - name: Build Linux
+        run: |
+          make build
+          make package
+        env:
+          GOARCH: amd64
+          GOOS: linux
 
-    - name: show env
-      run: echo ${PROJECT_NAME}
-    - name: Build Linux
-      run: go build -v -o godown.linux .
-      env:
-        GOARCH: amd64
-        GOOS: linux
+      - name: show build result
+        run: ls -al
 
-    - name: Build Mac
-      run: go build -v -o godown.darwin .
-      env:
-        GOARCH: amd64
-        GOOS: darwin
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
 
-    - name: Build Windows
-      run: go build -v -o godown.windows .
-      env:
-        GOARCH: amd64
-        GOOS: windows
-
-    - name: show build result
-      run: ls -al
-      
-    - name: Test Shell script
-      run: echo basename $GITHUB_REPOSITORY
-    
-    - name: Try shell
-      run: echo ${{ github.repository }}
-    
-    - name: How many
-      run: echo ${HOME}
-  
-    - name: Show Project Name
-      run: echo ${PROJECT_NAME}
-      env:
-        PROJECT_NAME: $(basename $GITHUB_REPOSITORY)
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./godown.tar.gz
+          asset_name: godown.tar.gz
+          asset_content_type: application/octet-stream
