@@ -50,6 +50,7 @@ jobs:
         env:
           GOARCH: amd64
           GOOS: windows
+          OUTPUT_FILE: godown.exe
 
       - name: Upload Release Asset
         id: upload-release-asset
