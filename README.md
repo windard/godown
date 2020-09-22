@@ -3,9 +3,7 @@
 Go 语言多线程下载器
 > Goroutine Download For Golang
 
-![Action-Release](https://github.com/windard/godown/workflows/Release/badge.svg)
-
-![Action-Go](https://github.com/windard/godown/workflows/Go/badge.svg)
+![Release](https://github.com/windard/godown/workflows/Release/badge.svg)
 
 ```shell script
 NAME:
@@ -15,7 +13,7 @@ USAGE:
    godown [global options] command [command options] argument
 
 VERSION:
-   0.1.0
+   0.1.6
 
 COMMANDS:
    download, d  download from server
