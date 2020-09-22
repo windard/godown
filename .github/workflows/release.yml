@@ -6,6 +6,13 @@ on:
     - v*
 
 jobs:
+  github-action-docker-workflow:
+   name: my own github workflow docker
+   runs-on: ubuntu-latest
+   steps:
+     - name: start flow
+       uses: windard/github-action-docker
+       
   release-check:
     name: Release on GitHub
     runs-on: ubuntu-latest
