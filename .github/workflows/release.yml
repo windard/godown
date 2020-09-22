@@ -11,7 +11,7 @@ jobs:
    runs-on: ubuntu-latest
    steps:
      - name: start flow
-       uses: windard/github-action-docker
+       uses: windard/github-action-docker@master
        
   release-check:
     name: Release on GitHub
