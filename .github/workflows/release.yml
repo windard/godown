@@ -1,14 +1,17 @@
 name: Release
 on:
-  workflow_dispatch:
   create:
     tags:
     - v*
 
 jobs:
   build-release:
-    name: build linux release
+    name: Build Release
     runs-on: ubuntu-latest
+    env:
+      GOARCH: amd64
+      VERSION: ${GITHUB_REF##*/}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -22,59 +25,36 @@ jobs:
       - name: Test
         run: go test -v .
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: true
-          prerelease: false
-
       - name: Build Linux
         run: |
           make build
           make package
         env:
-          GOARCH: amd64
           GOOS: linux
-          VERSION: ${GITHUB_REF##*/}
 
       - name: Build Mac
         run: |
           make build
           make package
         env:
-          GOARCH: amd64
           GOOS: darwin
-          VERSION: ${GITHUB_REF##*/}
 
       - name: Build Windows
         run: |
           make build
           make package
         env:
-          GOARCH: amd64
           GOOS: windows
-          VERSION: ${GITHUB_REF##*/}
-
-      - name: show build result
-        run: ls -al
-
-      - name: show github ref
-        run: echo ${{ github.ref }}
 
       - name: Upload Release Asset
         id: upload-release-asset
         run: |
           set -x
-          assets=()
+          sha256sum *.tar.gz > sha256sum.txt
+          assets=("-a" "sha256sum.txt")
           for asset in ./*.tar.gz; do
             assets+=("-a" "$asset")
           done
-          tag_name="${GITHUB_REF##*/}"
-          hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
+          hub release create "${assets[@]}" -m "$VERSION" "$VERSION"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
