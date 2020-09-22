@@ -12,6 +12,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/schollz/progressbar/v3 v3.5.1
+	github.com/stretchr/testify v1.4.0
 	github.com/ugorji/go v1.1.8 // indirect
 	github.com/urfave/cli/v2 v2.2.0
 	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect

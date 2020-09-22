@@ -23,7 +23,7 @@ prepare:
 	go get -v ./...
 
 test:
-	go test -v .
+	go test -v ./...
 
 package:
 	tar -czvf godown${VERSION}_${GOOS}_${GOARCH}.tar.gz ${OUTPUT_FILE} LICENSE README.md
