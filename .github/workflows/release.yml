@@ -10,7 +10,7 @@ jobs:
    name: my own github workflow docker
    runs-on: ubuntu-latest
    env:
-     PROJECT_NAME: basename $GITHUB_REPOSITORY
+     PROJECT_NAME: `basename $GITHUB_REPOSITORY`
    steps:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
