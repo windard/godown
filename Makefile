@@ -11,6 +11,10 @@ ifeq ("${OUTPUT_FILE}", "")
 	OUTPUT_FILE:=godown
 endif
 
+ifneq ("${VERSION}", "")
+	VERSION:=_${VERSION}
+endif
+
 
 build: prepare
 	go build -v -o ${OUTPUT_FILE} .
@@ -22,4 +26,4 @@ test:
 	go test -v .
 
 package:
-	tar -czvf godown.tar.gz ${OUTPUT_FILE} LICENSE README.md
+	tar -czvf godown${VERSION}_${GOOS}_${GOARCH}.tar.gz ${OUTPUT_FILE} LICENSE README.md
