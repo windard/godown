@@ -21,6 +21,12 @@ jobs:
       - name: Test
         run: go test -v .
 
+      - name: Set Version
+        run: |
+          export VERSION="${GITHUB_REF##*/}"
+          echo "::set-env name=VERSION::$VERSION"
+          echo ${VERSION}
+
       - name: Build Linux
         run: |
           make build
@@ -28,7 +34,6 @@ jobs:
         env:
           GOARCH: amd64
           GOOS: linux
-          VERSION: ${GITHUB_REF##*/}
 
       - name: Build Mac
         run: |
@@ -37,7 +42,6 @@ jobs:
         env:
           GOARCH: amd64
           GOOS: darwin
-          VERSION: ${GITHUB_REF##*/}
 
       - name: Build Windows
         run: |
@@ -46,7 +50,6 @@ jobs:
         env:
           GOARCH: amd64
           GOOS: windows
-          VERSION: ${GITHUB_REF##*/}
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -57,7 +60,6 @@ jobs:
           for asset in ./*.tar.gz; do
             assets+=("-a" "$asset")
           done
-          tag_name="${GITHUB_REF##*/}"
-          hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
+          hub release create "${assets[@]}" -m "${VERSION}" "${VERSION}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
