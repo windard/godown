@@ -33,6 +33,9 @@ jobs:
       - name: show build result
         run: ls -al
 
+      - name: show github ref
+        run: echo ${{ github.ref }}
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
