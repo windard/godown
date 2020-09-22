@@ -10,6 +10,7 @@ jobs:
    name: my own github workflow docker
    runs-on: ubuntu-latest
    steps:
+     - uses: actions/checkout@master
      - name: start flow
        uses: windard/github-action-docker@main
        env:
@@ -17,18 +18,6 @@ jobs:
          GOARCH: amd64
          GOOS: linux
          EXTRA_FILES: "README.md LICENSE"
-
-  release-check:
-    name: Release on GitHub
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v1
-
-    - name: Validates GO releaser config
-      uses: docker://goreleaser/goreleaser:latest
-      with:
-        args: check
 
   release-linux-amd64:
     name: release Linux
