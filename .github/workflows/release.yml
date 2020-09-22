@@ -12,7 +12,12 @@ jobs:
    steps:
      - name: start flow
        uses: windard/github-action-docker@main
-       
+       env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         GOARCH: amd64
+         GOOS: linux
+         EXTRA_FILES: "README.md LICENSE"
+
   release-check:
     name: Release on GitHub
     runs-on: ubuntu-latest
