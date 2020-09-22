@@ -64,6 +64,7 @@ func GoroutineDownload(requestUrl string, poolSize, chunkSize int64) {
 	}
 
 	wait.Wait()
+	fmt.Println()
 }
 
 func DownloadChunkToFile(requestUrl string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize int64) (start int64, err error) {

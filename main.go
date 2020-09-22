@@ -41,7 +41,7 @@ func main() {
 					&cli.Int64Flag{
 						Aliases: 	[]string{"c"},
 						Name:        "chunkSize",
-						Value:       1024 * 1024,
+						Value:       10 * 1024 * 1024,
 						Usage:       "chunk size for the fetch",
 						Destination: &chunkSize,
 					},

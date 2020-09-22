@@ -28,7 +28,7 @@ GLOBAL OPTIONS:
 ## download
 
 多线程下载
-> 默认 20 个并发请求，每个请求分块大小 1M
+> 默认 20 个并发请求，每个请求分块大小 10M
 
 ```shell script
 NAME:
