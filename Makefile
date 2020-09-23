@@ -1,4 +1,3 @@
-
 ifeq ("${GOOS}", "")
 	GOOS:=darwin
 endif
@@ -15,6 +14,8 @@ ifneq ("${VERSION}", "")
 	VERSION:=_${VERSION}
 endif
 
+all: check test build
+
 
 build: prepare
 	go build -v -o ${OUTPUT_FILE} .
@@ -27,3 +28,10 @@ test:
 
 package:
 	tar -czvf godown${VERSION}_${GOOS}_${GOARCH}.tar.gz ${OUTPUT_FILE} LICENSE README.md
+
+check:
+	go vet -copylocks=false ./...
+
+clean:
+	rm -rf output
+	go clean ./...
