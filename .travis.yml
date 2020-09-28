@@ -20,7 +20,7 @@ install:
 script:
   - make prepare
   - make check
-  - make test
+  - make test-race
   - make clean
 
 after_success:

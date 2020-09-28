@@ -26,6 +26,9 @@ prepare:
 test:
 	go test -v ./...
 
+test-race:
+	go test -race -coverprofile=coverage.txt -covermode=atomic
+
 package:
 	tar -czvf godown${VERSION}_${GOOS}_${GOARCH}.tar.gz ${OUTPUT_FILE} LICENSE README.md
 
