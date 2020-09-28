@@ -34,7 +34,7 @@ package:
 
 check:
 	@go vet ./...
-	@gofmt -s -l .
+	@test -z $(gofmt -s -l .)
 
 fmt:
 	@gofmt -s -w .

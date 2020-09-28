@@ -15,7 +15,6 @@ import (
 
 var wait = sync.WaitGroup{}
 
-
 func GoroutineDownload(requestUrl string, poolSize, chunkSize int64) {
 	var start int64 = 0
 
