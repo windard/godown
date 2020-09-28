@@ -14,7 +14,7 @@ ifneq ("${VERSION}", "")
 	VERSION:=_${VERSION}
 endif
 
-all: check test build
+all: fmt check test build
 
 
 build: prepare
@@ -33,7 +33,17 @@ package:
 	tar -czvf godown${VERSION}_${GOOS}_${GOARCH}.tar.gz ${OUTPUT_FILE} LICENSE README.md
 
 check:
-	go vet -copylocks=false ./...
+	@go vet ./...
+	@gofmt -s -l .
+
+fmt:
+	@gofmt -s -w .
+
+lint:
+	@hash golint > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		go get -u golang.org/x/lint/golint; \
+	fi
+	golint -set_exit_status .
 
 clean:
 	rm -rf output

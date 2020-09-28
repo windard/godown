@@ -9,14 +9,13 @@ import (
 	"path/filepath"
 )
 
-
 func StaticServerFileSystem(host, port string, path, root string, listDirectory bool) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.POST("/", func(c *gin.Context) {
 		url := c.PostForm("url")
 		if url != "" {
-			fetch.GoroutineDownload(url, 20, 10 * 1024 * 1024)
+			fetch.GoroutineDownload(url, 20, 10*1024*1024)
 			c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", url))
 			return
 		}

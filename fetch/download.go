@@ -51,14 +51,14 @@ func GoroutineDownload(requestUrl string, poolSize, chunkSize int64) {
 	pool := make(chan int64, poolSize)
 	for start = 0; start < poolSize; start++ {
 		go func() {
-			start,e := DownloadChunkToFile(requestUrl, pool, f, bar, chunkSize)
+			start, e := DownloadChunkToFile(requestUrl, pool, f, bar, chunkSize)
 			log.Printf("fetch chunck start:%d error:%+v\n", start, e)
 			wait.Add(1)
 			pool <- start
 		}()
 	}
 
-	for start = 0; start < length; start+=chunkSize {
+	for start = 0; start < length; start += chunkSize {
 		wait.Add(1)
 		pool <- start
 	}
@@ -76,7 +76,7 @@ func DownloadChunkToFile(requestUrl string, pool chan int64, f *os.File, bar *pr
 	}
 
 	for {
-		start := <- pool
+		start := <-pool
 		chunkRequest.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", start, start+chunkSize-1))
 		resp, err := client.Do(chunkRequest)
 		if err != nil {
@@ -107,7 +107,7 @@ func GetFileLength(url string) (int64, error) {
 	if err != nil {
 		log.Println(err)
 		return 0, err
-	}else {
+	} else {
 		if resp.StatusCode != http.StatusOK {
 			return 0, errors.New(resp.Status)
 		}
