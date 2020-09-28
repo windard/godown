@@ -3,7 +3,9 @@
 Go 语言多线程下载器
 > Goroutine Download For Golang
 
-![Release](https://github.com/windard/godown/workflows/Release/badge.svg)
+[![](https://tokei.rs/b1/github/windard/godown)](https://github.com/windard/godown)
+[![](https://img.shields.io/github/release/windard/godown.svg)](https://github.com/windard/godown/releases)
+[![](https://img.shields.io/github/license/windard/godown)](https://github.com/windard/godown/blob/master/LICENSE)
 
 ```shell script
 NAME:
