@@ -18,7 +18,7 @@ USAGE:
    godown [global options] command [command options] argument
 
 VERSION:
-   0.1.8
+   0.2.0
 
 COMMANDS:
    download, d  download from server
