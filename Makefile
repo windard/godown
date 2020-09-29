@@ -48,3 +48,6 @@ lint:
 clean:
 	rm -rf output
 	go clean ./...
+
+install:
+	go install ./...

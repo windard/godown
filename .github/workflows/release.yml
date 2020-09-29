@@ -27,6 +27,15 @@ jobs:
           echo "::set-env name=VERSION::$VERSION"
           echo ${VERSION}
 
+      - name: Check Version
+        run: |
+          make prepare
+          make install
+          gversion=`godown -v`
+          if [ "${gversion:0-5}" != "${VERSION:0-5}" ];then
+            exit 1
+          fi
+
       - name: Build Linux
         run: |
           make build
