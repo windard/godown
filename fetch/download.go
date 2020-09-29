@@ -15,18 +15,19 @@ import (
 
 var wait = sync.WaitGroup{}
 
-func GoroutineDownload(requestUrl string, poolSize, chunkSize int64) {
+// GoroutineDownload will download form requestURL.
+func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
 	var start int64 = 0
 
 	// fetch file length
-	length, err := GetFileLength(requestUrl)
+	length, err := GetFileLength(requestURL)
 	if length == 0 {
-		log.Printf("content not exist:%s\n", requestUrl)
+		log.Printf("content not exist:%s\n", requestURL)
 		return
 	}
 
 	// parse url
-	u, err := url.Parse(requestUrl)
+	u, err := url.Parse(requestURL)
 	if err != nil {
 		log.Printf("parse error:%+v\n", err.Error())
 		return
@@ -50,7 +51,7 @@ func GoroutineDownload(requestUrl string, poolSize, chunkSize int64) {
 	pool := make(chan int64, poolSize)
 	for start = 0; start < poolSize; start++ {
 		go func() {
-			start, e := DownloadChunkToFile(requestUrl, pool, f, bar, chunkSize)
+			start, e := downloadChunkToFile(requestURL, pool, f, bar, chunkSize)
 			log.Printf("fetch chunck start:%d error:%+v\n", start, e)
 			wait.Add(1)
 			pool <- start
@@ -66,9 +67,9 @@ func GoroutineDownload(requestUrl string, poolSize, chunkSize int64) {
 	fmt.Println()
 }
 
-func DownloadChunkToFile(requestUrl string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize int64) (start int64, err error) {
+func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize int64) (start int64, err error) {
 	client := &http.Client{}
-	chunkRequest, err := http.NewRequest("GET", requestUrl, nil)
+	chunkRequest, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
 		log.Printf("create request error:%+v\n", err)
 		return
@@ -101,15 +102,15 @@ func DownloadChunkToFile(requestUrl string, pool chan int64, f *os.File, bar *pr
 	}
 }
 
+// GetFileLength will return http response content-length
 func GetFileLength(url string) (int64, error) {
 	resp, err := http.Head(url)
 	if err != nil {
 		log.Println(err)
 		return 0, err
-	} else {
-		if resp.StatusCode != http.StatusOK {
-			return 0, errors.New(resp.Status)
-		}
-		return resp.ContentLength, nil
 	}
+	if resp.StatusCode != http.StatusOK {
+		return 0, errors.New(resp.Status)
+	}
+	return resp.ContentLength, nil
 }

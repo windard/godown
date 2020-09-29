@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 )
 
+// StaticServerFileSystem will start HTTP Server.
 func StaticServerFileSystem(host, port string, path, root string, listDirectory bool) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
