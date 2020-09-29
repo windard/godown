@@ -17,7 +17,7 @@ var wait = sync.WaitGroup{}
 
 // GoroutineDownload will download form requestURL.
 func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
-	var start int64 = 0
+	var start int64
 
 	// fetch file length
 	length, err := GetFileLength(requestURL)
@@ -96,7 +96,7 @@ func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *pr
 			return start, err
 		}
 
-		err = bar.Add(n)
+		_ = bar.Add(n)
 		_ = resp.Body.Close()
 		wait.Done()
 	}
