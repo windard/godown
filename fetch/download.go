@@ -20,7 +20,7 @@ var counterQueue = make(chan int, 100)
 
 // GoroutineDownload will download form requestURL.
 func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
-	var start int64
+	var index, start int64
 
 	// fetch file length
 	length, err := GetFileLength(requestURL)
@@ -62,10 +62,8 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
 	}()
 	
 	pool := make(chan int64, poolSize)
-	for start = 0; start < poolSize; start++ {
+	for index = 0; index < poolSize; index++ {
 		go func() {
-			wait.Add(1)
-
 			flag := true
 			for flag {
 				start, err := downloadChunkToFile(requestURL, pool, f, bar, chunkSize)
@@ -87,7 +85,7 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
 
 	wait.Wait()
 	fmt.Println()
-	log.Printf("time spend count:%+v", counterQueue)
+	log.Printf("time spend count:%+v", counter)
 }
 
 func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize int64) (start int64, err error) {
@@ -127,6 +125,8 @@ func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *pr
 		counterQueue <- spendTime
 		_ = bar.Add(n)
 		_ = resp.Body.Close()
+
+		// echo chunk will down one.
 		wait.Done()
 	}
 }
