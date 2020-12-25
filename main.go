@@ -13,6 +13,7 @@ var version = "0.2.0"
 func main() {
 	var poolSize int64
 	var chunkSize int64
+	var timeout int64
 
 	var host, port string
 	var path, root string
@@ -43,6 +44,13 @@ func main() {
 						Value:       10 * 1024 * 1024,
 						Usage:       "chunk size for the fetch",
 						Destination: &chunkSize,
+					},
+					&cli.Int64Flag{
+						Aliases:     []string{"t"},
+						Name:        "timeout",
+						Value:       30,
+						Usage:       "timeout seconds for each chunk",
+						Destination: &timeout,
 					},
 				},
 				Action: func(c *cli.Context) error {

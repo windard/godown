@@ -11,9 +11,12 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var wait = sync.WaitGroup{}
+var counter = make(map[int]int)
+var counterQueue = make(chan int, 100)
 
 // GoroutineDownload will download form requestURL.
 func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
@@ -48,13 +51,32 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionShowBytes(true))
 
+	go func() {
+		for spendTime := range counterQueue {
+			if n, ok := counter[spendTime]; ok {
+				counter[spendTime] = n+1
+			}else {
+				counter[spendTime] = 1
+			}
+		}
+	}()
+	
 	pool := make(chan int64, poolSize)
 	for start = 0; start < poolSize; start++ {
 		go func() {
-			start, e := downloadChunkToFile(requestURL, pool, f, bar, chunkSize)
-			log.Printf("fetch chunck start:%d error:%+v\n", start, e)
 			wait.Add(1)
-			pool <- start
+
+			flag := true
+			for flag {
+				start, err := downloadChunkToFile(requestURL, pool, f, bar, chunkSize)
+				if err != nil {
+					log.Printf("fetch chunck start:%d error:%+v\n", start, err)
+					pool <- start
+				} else {
+					flag = false
+				}
+			}
+			log.Print("end one goroutine")
 		}()
 	}
 
@@ -65,10 +87,12 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
 
 	wait.Wait()
 	fmt.Println()
+	log.Printf("time spend count:%+v", counterQueue)
 }
 
 func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize int64) (start int64, err error) {
-	client := &http.Client{}
+	log.Print("start new loop")
+	client := &http.Client{Timeout: time.Second*30}
 	chunkRequest, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
 		log.Printf("create request error:%+v\n", err)
@@ -76,6 +100,7 @@ func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *pr
 	}
 
 	for {
+		startTime := time.Now()
 		start := <-pool
 		chunkRequest.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", start, start+chunkSize-1))
 		resp, err := client.Do(chunkRequest)
@@ -86,16 +111,20 @@ func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *pr
 
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
+			_ = resp.Body.Close()
 			log.Printf("read response error:%+v\n", err)
 			return start, err
 		}
 
 		n, err := f.WriteAt(body, start)
 		if err != nil {
+			_ = resp.Body.Close()
 			log.Printf("write file error:%+v\n", err)
 			return start, err
 		}
-
+		spendTime := int(time.Now().Sub(startTime).Seconds())
+		log.Printf("\n%d download spend %ds\n", n, spendTime)
+		counterQueue <- spendTime
 		_ = bar.Add(n)
 		_ = resp.Body.Close()
 		wait.Done()
