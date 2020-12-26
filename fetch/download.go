@@ -11,13 +11,14 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var wait = sync.WaitGroup{}
 
 // GoroutineDownload will download form requestURL.
-func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
-	var start int64
+func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
+	var index, start int64
 
 	// fetch file length
 	length, err := GetFileLength(requestURL)
@@ -49,12 +50,18 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
 		progressbar.OptionShowBytes(true))
 
 	pool := make(chan int64, poolSize)
-	for start = 0; start < poolSize; start++ {
+	for index = 0; index < poolSize; index++ {
 		go func() {
-			start, e := downloadChunkToFile(requestURL, pool, f, bar, chunkSize)
-			log.Printf("fetch chunck start:%d error:%+v\n", start, e)
-			wait.Add(1)
-			pool <- start
+			flag := true
+			for flag {
+				start, err := downloadChunkToFile(requestURL, pool, f, bar, chunkSize, timeout)
+				if err != nil {
+					log.Printf("fetch chunck start:%d error:%+v\n", start, err)
+					pool <- start
+				} else {
+					flag = false
+				}
+			}
 		}()
 	}
 
@@ -67,8 +74,8 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize int64) {
 	fmt.Println()
 }
 
-func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize int64) (start int64, err error) {
-	client := &http.Client{}
+func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize,timeout int64) (start int64, err error) {
+	client := &http.Client{Timeout: time.Second*time.Duration(timeout)}
 	chunkRequest, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
 		log.Printf("create request error:%+v\n", err)
@@ -86,18 +93,21 @@ func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *pr
 
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
+			_ = resp.Body.Close()
 			log.Printf("read response error:%+v\n", err)
 			return start, err
 		}
 
 		n, err := f.WriteAt(body, start)
 		if err != nil {
+			_ = resp.Body.Close()
 			log.Printf("write file error:%+v\n", err)
 			return start, err
 		}
-
 		_ = bar.Add(n)
 		_ = resp.Body.Close()
+
+		// echo chunk will down one.
 		wait.Done()
 	}
 }

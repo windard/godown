@@ -1,8 +1,8 @@
 name: Release
 on:
-  create:
+  push:
     tags:
-    - v*
+      - 'v*'
 
 jobs:
   build-release:
@@ -24,7 +24,7 @@ jobs:
       - name: Set Version
         run: |
           export VERSION="${GITHUB_REF##*/}"
-          echo "::set-env name=VERSION::$VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo ${VERSION}
 
       - name: Check Version
