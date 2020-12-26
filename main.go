@@ -34,14 +34,14 @@ func main() {
 					&cli.Int64Flag{
 						Aliases:     []string{"p"},
 						Name:        "poolSize",
-						Value:       20,
+						Value:       30,
 						Usage:       "pool size for the fetch",
 						Destination: &poolSize,
 					},
 					&cli.Int64Flag{
 						Aliases:     []string{"c"},
 						Name:        "chunkSize",
-						Value:       10 * 1024 * 1024,
+						Value:       1024 * 1024,
 						Usage:       "chunk size for the fetch",
 						Destination: &chunkSize,
 					},
@@ -60,7 +60,7 @@ func main() {
 					}
 
 					requestURL := c.Args().Get(0)
-					fetch.GoroutineDownload(requestURL, poolSize, chunkSize)
+					fetch.GoroutineDownload(requestURL, poolSize, chunkSize, timeout)
 					return nil
 				},
 			},
