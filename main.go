@@ -1,14 +1,15 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/urfave/cli/v2"
 	"github.com/windard/godown/fetch"
 	"github.com/windard/godown/server"
-	"log"
-	"os"
 )
 
-var version = "0.2.1"
+var version = "0.2.2"
 
 func main() {
 	var poolSize int64

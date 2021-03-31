@@ -2,8 +2,6 @@ package fetch
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/schollz/progressbar/v3"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +10,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/schollz/progressbar/v3"
 )
 
 var wait = sync.WaitGroup{}
@@ -74,8 +75,8 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
 	fmt.Println()
 }
 
-func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize,timeout int64) (start int64, err error) {
-	client := &http.Client{Timeout: time.Second*time.Duration(timeout)}
+func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *progressbar.ProgressBar, chunkSize, timeout int64) (start int64, err error) {
+	client := &http.Client{Timeout: time.Second * time.Duration(timeout)}
 	chunkRequest, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
 		log.Printf("create request error:%+v\n", err)

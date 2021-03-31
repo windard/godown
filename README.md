@@ -18,7 +18,7 @@ USAGE:
    godown [global options] command [command options] argument
 
 VERSION:
-   0.2.0
+   0.2.2
 
 COMMANDS:
    download, d  download from server
@@ -51,7 +51,7 @@ OPTIONS:
 ## server
 
 静态服务器
-> 默认监听 `0.0.0.0:8080` ，下载根目录为当前目录
+> 默认监听 `0.0.0.0:8080` ，下载根目录为当前目录, 支持文件上传，或者离线下载
 
 ```shell script
 NAME:

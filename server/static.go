@@ -2,11 +2,12 @@ package server
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/windard/godown/fetch"
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/gin-gonic/gin"
+	"github.com/windard/godown/fetch"
 )
 
 // StaticServerFileSystem will start HTTP Server.
@@ -16,7 +17,12 @@ func StaticServerFileSystem(host, port string, path, root string, listDirectory 
 	router.POST("/", func(c *gin.Context) {
 		url := c.PostForm("url")
 		if url != "" {
-			fetch.GoroutineDownload(url, 20, 10*1024*1024, 30)
+			async := c.PostForm("async")
+			if async != "" {
+				go fetch.GoroutineDownload(url, 20, 10*1024*1024, 30)
+			} else {
+				fetch.GoroutineDownload(url, 20, 10*1024*1024, 30)
+			}
 			c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", url))
 			return
 		}
