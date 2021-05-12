@@ -3,7 +3,7 @@
 Go 语言多线程下载器
 > Goroutine Download For Golang
 
-[![](https://img.shields.io/travis/windard/godown)](https://travis-ci.org/github/windard/godown)
+[![](https://img.shields.io/travis/windard/godown)](https://travis-ci.com/github/windard/godown)
 [![](https://img.shields.io/tokei/lines/github/windard/godown)](https://github.com/windard/godown)
 [![](https://img.shields.io/github/release/windard/godown.svg)](https://github.com/windard/godown/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/windard/godown)](https://goreportcard.com/report/github.com/windard/godown)
