@@ -21,6 +21,11 @@ var wait = sync.WaitGroup{}
 func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
 	var index, start int64
 
+	if !strings.HasPrefix(requestURL, "http") {
+		requestURL = "http://" + requestURL
+	}
+	requestURL = strings.TrimSpace(requestURL)
+
 	// fetch file length
 	length, err := GetFileLength(requestURL)
 	if length == 0 {
