@@ -1,3 +1,6 @@
+/*
+	Package server for upload, provide server side service.
+*/
 package server
 
 import (
@@ -11,6 +14,10 @@ import (
 )
 
 // StaticServerFileSystem will start HTTP Server.
+// example:
+//
+//  StaticServerFileSystem(host, port, path, root, listDirectory)
+//
 func StaticServerFileSystem(host, port string, path, root string, listDirectory bool) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()

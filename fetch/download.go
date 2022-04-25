@@ -1,3 +1,10 @@
+/*
+
+Package fetch for download, provide high performance download
+
+use Goroutine to parallel download, use WaitGroup to do concurrency control.
+
+*/
 package fetch
 
 import (
@@ -15,9 +22,23 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-var wait = sync.WaitGroup{}
+// FileFlag save file flag
+//
+// FileMode save file mode
+const (
+	FileFlag = os.O_WRONLY | os.O_CREATE
+	FileMode = 0644
+)
+
+// WaitPool implement request pool to enhance performance
+var (
+	WaitPool = sync.WaitGroup{}
+)
 
 // GoroutineDownload will download form requestURL.
+// example:
+//  requestURL := "http://xxx"
+//  GoroutineDownload(requestURL, 20, 10*1024*1024, 30)
 func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
 	var index, start int64
 
@@ -43,7 +64,7 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
 	fileName := pathList[len(pathList)-1]
 
 	// open file
-	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0644)
+	f, err := os.OpenFile(fileName, FileFlag, FileMode)
 	if err != nil {
 		log.Printf("open error:%+v\n", err)
 		return
@@ -72,11 +93,11 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
 	}
 
 	for start = 0; start < length; start += chunkSize {
-		wait.Add(1)
+		WaitPool.Add(1)
 		pool <- start
 	}
 
-	wait.Wait()
+	WaitPool.Wait()
 	fmt.Println()
 }
 
@@ -114,11 +135,13 @@ func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *pr
 		_ = resp.Body.Close()
 
 		// echo chunk will down one.
-		wait.Done()
+		WaitPool.Done()
 	}
 }
 
 // GetFileLength will return http response content-length
+// example:
+//  GetFileLength("http://xxx")
 func GetFileLength(url string) (int64, error) {
 	resp, err := http.Head(url)
 	if err != nil {

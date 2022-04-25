@@ -9,7 +9,8 @@ import (
 	"github.com/windard/godown/server"
 )
 
-var version = "0.2.3"
+// Version of godown.
+const version = "0.2.3"
 
 func main() {
 	var poolSize int64
