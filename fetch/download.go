@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -76,18 +77,26 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionShowBytes(true))
 
-	pool := make(chan int64, poolSize)
+	pool := make(chan int64, (length/chunkSize)+1)
 	for index = 0; index < poolSize; index++ {
 		go func() {
-			flag := true
-			for flag {
-				start, err := downloadChunkToFile(requestURL, pool, f, bar, chunkSize, timeout)
+			// recover
+			defer func() {
+				if err2 := recover(); err2 != nil {
+					log.Printf("panic error: %+v, stack:%s", err2, debug.Stack())
+				}
+			}()
+
+			// loop download until finish
+			for {
+				start, err = downloadChunkToFile(requestURL, pool, f, bar, chunkSize, timeout)
 				if err != nil {
 					log.Printf("fetch chunck start:%d error:%+v\n", start, err)
 					pool <- start
 				} else {
-					flag = false
+					break
 				}
+				log.Printf("start loop download again")
 			}
 		}()
 	}
@@ -109,29 +118,32 @@ func downloadChunkToFile(requestURL string, pool chan int64, f *os.File, bar *pr
 		return
 	}
 
+	var resp *http.Response
+	var body []byte
+	var written int
 	for {
-		start := <-pool
+		start = <-pool
 		chunkRequest.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", start, start+chunkSize-1))
-		resp, err := client.Do(chunkRequest)
+		resp, err = client.Do(chunkRequest)
 		if err != nil {
 			log.Printf("send request error:%+v\n", err)
-			return start, err
+			return
 		}
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
 			_ = resp.Body.Close()
 			log.Printf("read response error:%+v\n", err)
-			return start, err
+			return
 		}
 
-		n, err := f.WriteAt(body, start)
+		written, err = f.WriteAt(body, start)
 		if err != nil {
 			_ = resp.Body.Close()
 			log.Printf("write file error:%+v\n", err)
-			return start, err
+			return
 		}
-		_ = bar.Add(n)
+		_ = bar.Add(written)
 		_ = resp.Body.Close()
 
 		// echo chunk will down one.
