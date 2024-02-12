@@ -40,7 +40,7 @@ var (
 // example:
 //  requestURL := "http://xxx"
 //  GoroutineDownload(requestURL, 20, 10*1024*1024, 30)
-func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
+func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64, force bool) {
 	var index, start int64
 
 	if !strings.HasPrefix(requestURL, "http") {
@@ -63,6 +63,18 @@ func GoroutineDownload(requestURL string, poolSize, chunkSize, timeout int64) {
 	}
 	pathList := strings.Split(u.Path, "/")
 	fileName := pathList[len(pathList)-1]
+
+	if _, err = os.Stat(fileName); !os.IsNotExist(err) {
+		if force {
+			err = os.Remove(fileName)
+			if err != nil {
+				return
+			}
+		} else {
+			fmt.Printf("[%s] is already downloaded.\n", fileName)
+			return
+		}
+	}
 
 	// open file
 	f, err := os.OpenFile(fileName, FileFlag, FileMode)

@@ -10,12 +10,13 @@ import (
 )
 
 // Version of godown.
-const version = "0.2.3"
+const version = "0.2.4"
 
 func main() {
 	var poolSize int64
 	var chunkSize int64
 	var timeout int64
+	var force bool
 
 	var host, port string
 	var path, root string
@@ -54,6 +55,13 @@ func main() {
 						Usage:       "timeout seconds for each chunk",
 						Destination: &timeout,
 					},
+					&cli.BoolFlag{
+						Aliases:     []string{"f"},
+						Name:        "force",
+						Value:       false,
+						Usage:       "force overwrite",
+						Destination: &force,
+					},
 				},
 				Action: func(c *cli.Context) error {
 					if c.NArg() != 1 {
@@ -62,7 +70,7 @@ func main() {
 					}
 
 					requestURL := c.Args().Get(0)
-					fetch.GoroutineDownload(requestURL, poolSize, chunkSize, timeout)
+					fetch.GoroutineDownload(requestURL, poolSize, chunkSize, timeout, force)
 					return nil
 				},
 			},

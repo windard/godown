@@ -26,9 +26,9 @@ func StaticServerFileSystem(host, port string, path, root string, listDirectory 
 		if url != "" {
 			async := c.PostForm("async")
 			if async != "" {
-				go fetch.GoroutineDownload(url, 20, 10*1024*1024, 30)
+				go fetch.GoroutineDownload(url, 20, 10*1024*1024, 30, false)
 			} else {
-				fetch.GoroutineDownload(url, 20, 10*1024*1024, 30)
+				fetch.GoroutineDownload(url, 20, 10*1024*1024, 30, false)
 			}
 			c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", url))
 			return
